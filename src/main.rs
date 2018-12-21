@@ -17,6 +17,10 @@ struct Args {
 
 fn main() -> Result<()> {
     let args = Args::from_args();
-    println!("{:?}", args);
+
+    print!("{}", args.emit
+        .replace('x', &format!("{}", args.semval.major))
+        .replace('y', &format!("{}", args.semval.minor.unwrap()))
+        .replace('z', &format!("{}", args.semval.patch.unwrap())));
     Ok(())
 }
