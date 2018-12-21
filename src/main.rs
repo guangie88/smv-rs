@@ -12,7 +12,7 @@ struct Args {
     semval: semver::SemVer,
 
     #[structopt()]
-    pattern: String,
+    emit: String,
 }
 
 fn main() -> Result<()> {
