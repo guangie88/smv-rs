@@ -24,13 +24,21 @@ fn push_x(semval: &semver::SemVer, output: &mut String) {
 fn handle_x(c: char, semval: &semver::SemVer, output: &mut String) -> State {
     use self::State::*;
 
-    if is_delimiter(c) {
-        push_x(semval, output);
-        output.push(c);
-        Delimited
-    } else {
-        output.push('x');
-        Text
+    match c {
+        ESCAPE => {
+            output.push('x');
+            Escaped
+        }
+        c if is_delimiter(c) => {
+            push_x(semval, output);
+            output.push(c);
+            Delimited
+        }
+        c => {
+            output.push('x');
+            output.push(c);
+            Text
+        }
     }
 }
 
@@ -51,14 +59,22 @@ fn handle_y(
 ) -> Result<State, Error> {
     use self::State::*;
 
-    if is_delimiter(c) {
-        push_y(semval, output)?;
-        output.push(c);
-        Ok(Delimited)
-    } else {
-        output.push('y');
-        Ok(Text)
-    }
+    Ok(match c {
+        ESCAPE => {
+            output.push('y');
+            Escaped
+        }
+        c if is_delimiter(c) => {
+            push_y(semval, output)?;
+            output.push(c);
+            Delimited
+        }
+        c => {
+            output.push('y');
+            output.push(c);
+            Text
+        }
+    })
 }
 
 fn push_z(semval: &semver::SemVer, output: &mut String) -> Result<(), Error> {
@@ -78,14 +94,22 @@ fn handle_z(
 ) -> Result<State, Error> {
     use self::State::*;
 
-    if is_delimiter(c) {
-        push_z(semval, output)?;
-        output.push(c);
-        Ok(Delimited)
-    } else {
-        output.push('z');
-        Ok(Text)
-    }
+    Ok(match c {
+        ESCAPE => {
+            output.push('z');
+            Escaped
+        }
+        c if is_delimiter(c) => {
+            push_z(semval, output)?;
+            output.push(c);
+            Delimited
+        }
+        c => {
+            output.push('z');
+            output.push(c);
+            Text
+        }
+    })
 }
 
 pub fn replace(fmt: &str, semval: &semver::SemVer) -> Result<String, Error> {
@@ -156,6 +180,64 @@ mod tests {
         assert_eq!(
             replace("x.y.z", &SemVer::from_major_minor_patch(3, 1, 4)).unwrap(),
             "3.1.4"
+        );
+    }
+
+    #[test]
+    fn replace_xy() {
+        assert_eq!(
+            replace("x.y", &SemVer::from_major_minor_patch(3, 1, 4)).unwrap(),
+            "3.1"
+        );
+    }
+
+    #[test]
+    fn replace_x() {
+        assert_eq!(
+            replace("x", &SemVer::from_major_minor_patch(3, 1, 4)).unwrap(),
+            "3"
+        );
+    }
+
+    #[test]
+    fn replace_large_xyz() {
+        assert_eq!(
+            replace("x.y.z", &SemVer::from_major_minor_patch(100, 213, 579))
+                .unwrap(),
+            "100.213.579"
+        );
+    }
+
+    #[test]
+    fn replace_xyz_with_text() {
+        assert_eq!(
+            replace("xx:x,yy:y zz:z", &SemVer::from_major_minor_patch(3, 1, 4))
+                .unwrap(),
+            "xx:3,yy:1 zz:4"
+        );
+    }
+
+    #[test]
+    fn replace_xyz_with_complex_text() {
+        assert_eq!(
+            replace(
+                "xabcx x-x defyy y,y zzghi z:z helloworld",
+                &SemVer::from_major_minor_patch(3, 1, 4)
+            )
+            .unwrap(),
+            "xabcx 3-3 defyy 1,1 zzghi 4:4 helloworld"
+        );
+    }
+
+    #[test]
+    fn replace_xyz_with_escaped_text() {
+        assert_eq!(
+            replace(
+                "\\x:x,\\y:y x\\\\ \\\\z \\z:z",
+                &SemVer::from_major_minor_patch(3, 1, 4)
+            )
+            .unwrap(),
+            "x:3,y:1 x\\ \\z z:4"
         );
     }
 }
