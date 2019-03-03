@@ -1,5 +1,5 @@
 build:
-  image: clux/muslrust:stable
+  image: guangie88/rust:1.33.0
   stage: build
   script:
   - cargo build -v --all
@@ -10,13 +10,14 @@ build:
     - Cargo.lock
     - Cargo.toml
     refs:
-    - master
     - merge_requests
 
 test:
-  image: clux/muslrust:stable
+  image: guangie88/rust:1.33.0
   stage: test
   script:
+  - rustfmt --check cli/**/*.rs lib/**/*.rs
+  - cargo clippy -v --all
   - cargo test -v --all
   only:
     changes:
@@ -25,14 +26,16 @@ test:
     - Cargo.lock
     - Cargo.toml
     refs:
-    - master
     - merge_requests
 
-release:
+build-release:
   image: clux/muslrust:stable
   stage: release
   script:
   - cargo build -v --release --all
+  artifacts:
+    paths:
+    - target/x86_64-unknown-linux-musl/release/smv
   only:
     refs:
     - master
@@ -46,4 +49,3 @@ cache:
   key: all-share
   paths:
   - target/
-  - ${HOME}/.cargo/registry/
