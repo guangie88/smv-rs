@@ -7,6 +7,32 @@ pub struct SemVer {
     pub patch: Option<u32>,
 }
 
+impl SemVer {
+    pub fn from_major(x: u32) -> SemVer {
+        SemVer {
+            major: x,
+            minor: None,
+            patch: None,
+        }
+    }
+
+    pub fn from_major_minor(x: u32, y: u32) -> SemVer {
+        SemVer {
+            major: x,
+            minor: Some(y),
+            patch: None,
+        }
+    }
+
+    pub fn from_major_minor_patch(x: u32, y: u32, z: u32) -> SemVer {
+        SemVer {
+            major: x,
+            minor: Some(y),
+            patch: Some(z),
+        }
+    }
+}
+
 impl std::str::FromStr for SemVer {
     type Err = Error;
 

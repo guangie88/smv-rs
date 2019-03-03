@@ -3,10 +3,7 @@ use std::io::{self, Read};
 use std::str::FromStr;
 use structopt::StructOpt;
 
-mod replace;
-mod semver;
-
-use crate::semver::SemVer;
+use smv_lib::SemVer;
 
 #[derive(Debug)]
 enum Input {

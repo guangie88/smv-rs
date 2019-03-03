@@ -19,15 +19,15 @@ pub fn replace(fmt: &str, semval: &semver::SemVer) -> Result<String, Error> {
     use self::State::*;
 
     // starts with Delimited
-    let mut prev_state = Delimited;
+    let mut state = Delimited;
     let mut output = String::with_capacity(fmt.len() * 2);
 
     for c in fmt.chars() {
-        match prev_state {
+        match state {
             Delimited => match c {
-                'x' => prev_state = X,
-                'y' => prev_state = Y,
-                'z' => prev_state = Z,
+                'x' => state = X,
+                'y' => state = Y,
+                'z' => state = Z,
                 c => {
                     if is_delimiter(c) {
                         // no change to state
@@ -42,10 +42,10 @@ pub fn replace(fmt: &str, semval: &semver::SemVer) -> Result<String, Error> {
             X => {
                 if is_delimiter(c) {
                     output.push_str(&format!("{}", semval.major));
-                    prev_state = Delimited;
+                    state = Delimited;
                 } else {
                     output.push('x');
-                    prev_state = Text
+                    state = Text
                 }
             }
             Y => {
@@ -56,10 +56,10 @@ pub fn replace(fmt: &str, semval: &semver::SemVer) -> Result<String, Error> {
                             "No minor version, cannot replace y"
                         ))?
                     ));
-                    prev_state = Delimited;
+                    state = Delimited;
                 } else {
                     output.push('x');
-                    prev_state = Text
+                    state = Text
                 }
             }
             Z => {}
@@ -72,4 +72,19 @@ pub fn replace(fmt: &str, semval: &semver::SemVer) -> Result<String, Error> {
     }
 
     Ok("".to_string())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use crate::semver::SemVer;
+
+    #[test]
+    fn replace_xyz() {
+        assert_eq!(
+            replace("x.y.z", &SemVer::from_major_minor_patch(3, 1, 4)).unwrap(),
+            "3.1.4"
+        );
+    }
 }

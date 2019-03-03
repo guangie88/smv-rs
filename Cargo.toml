@@ -1,21 +1,5 @@
-[package]
-name = "smv"
-version = "0.1.0"
-authors = ["Chen Weiguang <chen.weiguang@gmail.com>"]
-description = "Binary to transform SemVer value for scripting purposes"
-edition = "2018"
-readme = "README.md"
-categories = ["command-line-utilities"]
-license = "MIT"
-
-[badges]
-travis-ci = { repository = "guangie88/secky" }
-codecov = { repository = "guangie88/secky" }
-
-[dependencies]
-structopt = "0.2.14"
-failure = "0.1.3"
-
-[[bin]]
-name = "smv"
-path = "src/main.rs"
+[workspace]
+members = [
+    "cli",
+    "lib",
+]
