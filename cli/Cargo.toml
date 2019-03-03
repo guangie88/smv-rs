@@ -10,7 +10,7 @@ license = "MIT"
 
 [dependencies]
 structopt = "0.2.14"
-failure = "0.1.3"
+failure = "0.1.5"
 smv-lib = { path = "../lib" }
 
 [badges]
