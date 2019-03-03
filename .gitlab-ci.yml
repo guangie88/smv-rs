@@ -20,6 +20,15 @@ test:
   - test
   script:
   - cargo test -v --all
+  only:
+    changes:
+    - cli/**/*
+    - lib/**/*
+    - Cargo.lock
+    - Cargo.toml
+    refs:
+    - master
+    - merge_requests
 
 release:
   image: clux/muslrust:stable
@@ -27,6 +36,9 @@ release:
   - release
   script:
   - cargo build -v --release --all
+  only:
+    refs:
+    - master
 
 stages:
 - build
