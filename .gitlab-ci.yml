@@ -1,7 +1,6 @@
 build:
   image: clux/muslrust:stable
-  stage:
-  - build
+  stage: build
   script:
   - cargo build -v --all
   only:
@@ -16,8 +15,7 @@ build:
 
 test:
   image: clux/muslrust:stable
-  stage:
-  - test
+  stage: test
   script:
   - cargo test -v --all
   only:
@@ -32,8 +30,7 @@ test:
 
 release:
   image: clux/muslrust:stable
-  stage:
-  - release
+  stage: release
   script:
   - cargo build -v --release --all
   only:
