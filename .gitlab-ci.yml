@@ -1,0 +1,39 @@
+build:
+  image: clux/muslrust:stable
+  stage:
+  - build
+  script:
+  - cargo build -v --all
+  only:
+    changes:
+    - cli/**/*
+    - lib/**/*
+    - Cargo.lock
+    - Cargo.toml
+    refs:
+    - master
+    - merge_requests
+
+test:
+  image: clux/muslrust:stable
+  stage:
+  - test
+  script:
+  - cargo test -v --all
+
+release:
+  image: clux/muslrust:stable
+  stage:
+  - release
+  script:
+  - cargo build -v --release --all
+
+stages:
+- build
+- test
+- release
+
+cache:
+  key: all-share
+  paths:
+  - target/
