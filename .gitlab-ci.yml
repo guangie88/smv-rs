@@ -2,7 +2,7 @@ build:
   image: guangie88/rust:1.33.0
   stage: build
   script:
-  - cargo build -v --all
+  - cargo build -v --locked --all
   only:
     changes:
     - cli/**/*
@@ -17,8 +17,8 @@ test:
   stage: test
   script:
   - rustfmt --check cli/**/*.rs lib/**/*.rs
-  - cargo clippy -v --all
-  - cargo test -v --all
+  - cargo clippy -v --locked --all
+  - cargo test -v --locked --all
   only:
     changes:
     - cli/**/*
@@ -32,7 +32,7 @@ build-release:
   image: clux/muslrust:stable
   stage: release
   script:
-  - cargo build -v --release --all
+  - cargo build -v --locked --release --all
   artifacts:
     paths:
     - target/x86_64-unknown-linux-musl/release/smv
