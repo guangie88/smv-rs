@@ -1,0 +1,51 @@
+build:
+  image: guangie88/rust:1.33.0
+  stage: build
+  script:
+  - cargo build -v --locked --all
+  only:
+    changes:
+    - cli/**/*
+    - lib/**/*
+    - Cargo.lock
+    - Cargo.toml
+    refs:
+    - merge_requests
+
+test:
+  image: guangie88/rust:1.33.0
+  stage: test
+  script:
+  - rustfmt --check cli/**/*.rs lib/**/*.rs
+  - cargo clippy -v --locked --all
+  - cargo test -v --locked --all
+  only:
+    changes:
+    - cli/**/*
+    - lib/**/*
+    - Cargo.lock
+    - Cargo.toml
+    refs:
+    - merge_requests
+
+build-release:
+  image: clux/muslrust:stable
+  stage: release
+  script:
+  - cargo build -v --locked --release --all
+  artifacts:
+    paths:
+    - target/x86_64-unknown-linux-musl/release/smv
+  only:
+    refs:
+    - master
+
+stages:
+- build
+- test
+- release
+
+cache:
+  key: all-share
+  paths:
+  - target/
