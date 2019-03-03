@@ -46,3 +46,4 @@ cache:
   key: all-share
   paths:
   - target/
+  - ${HOME}/.cargo/registry/
