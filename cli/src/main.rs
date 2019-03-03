@@ -3,7 +3,7 @@ use std::io::{self, Read};
 use std::str::FromStr;
 use structopt::StructOpt;
 
-use smv_lib::SemVer;
+use smv_lib::{replace, SemVer};
 
 #[derive(Debug)]
 enum Input {
@@ -35,7 +35,7 @@ struct Args {
     input: Input,
 
     #[structopt(help = "Emits string via replacement x=maj, y=min, z=patch")]
-    output: String,
+    template: String,
 
     #[structopt(short = "n")]
     newline: bool,
@@ -44,8 +44,8 @@ struct Args {
 fn main() -> Result<(), Error> {
     let args = Args::from_args();
 
-    let semval = match args.input {
-        Input::SemVer(semval) => semval,
+    let sem_ver = match args.input {
+        Input::SemVer(sem_ver) => sem_ver,
         Input::Stdin => {
             let mut buf = String::new();
             let stdin = io::stdin();
@@ -55,22 +55,12 @@ fn main() -> Result<(), Error> {
         }
     };
 
-    let x_rep = args.output.replace("x", &format!("{}", semval.major));
-
-    let xy_rep = match semval.minor {
-        Some(minor) => x_rep.replace("y", &format!("{}", minor)),
-        None => x_rep,
-    };
-
-    let xyz_rep = match semval.patch {
-        Some(patch) => xy_rep.replace("z", &format!("{}", patch)),
-        None => xy_rep,
-    };
+    let output = replace(&args.template, &sem_ver)?;
 
     if !args.newline {
-        print!("{}", xyz_rep);
+        print!("{}", output);
     } else {
-        println!("{}", xyz_rep);
+        println!("{}", output);
     }
 
     Ok(())

@@ -76,7 +76,7 @@ mod tests {
         assert_eq!(sm.minor, None);
         assert_eq!(sm.patch, None);
     }
-    
+
     #[test]
     fn sem_ver_from_str_major_minor() {
         let sm = SemVer::from_str("3.1").unwrap();

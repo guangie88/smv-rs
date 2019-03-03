@@ -142,9 +142,10 @@ pub fn replace(fmt: &str, semval: &semver::SemVer) -> Result<String, Error> {
                     output.push(c);
                     state = Text;
                 }
-                c => {
-                    Err(err_msg(format!("Invalid char after escape '{}'", c)))?
-                }
+                c => Err(err_msg(format!(
+                    "Invalid char '{}' found after escape char",
+                    c
+                )))?,
             },
 
             X => state = handle_x(c, semval, &mut output),
