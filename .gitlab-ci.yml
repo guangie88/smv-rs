@@ -32,7 +32,7 @@ build-end:
   image: scratch
   stage: build-end
   script:
-  - .
+  - "true"
   only:
   - merge_requests
 
