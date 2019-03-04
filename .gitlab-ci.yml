@@ -40,10 +40,10 @@ test:
   artifacts:
     paths:
     - artifacts/original/smv_${OS}_${ARCH}
-  # only:
-  #   refs:
-  #   - master
-  #   - /^v\d+\.\d+\.\d+(-\S*)?$/
+  only:
+    refs:
+    - master
+    - /^v\d+\.\d+\.\d+(-\S*)?$/
 
 build-release:linux_amd64:
   variables:
@@ -76,9 +76,9 @@ build-release:linux_amd64:
   artifacts:
     paths:
     - artifacts/compressed/smv_${OS}_${ARCH}
-  # only:
-  #   refs:
-  #   - /^v\d+\.\d+\.\d+(-\S*)?$/
+  only:
+    refs:
+    - /^v\d+\.\d+\.\d+(-\S*)?$/
 
 upload-release:linux_amd64:
   variables:
