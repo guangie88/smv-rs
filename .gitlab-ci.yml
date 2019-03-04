@@ -4,13 +4,13 @@ build:
   script:
   - cargo build -v --locked --all
   only:
+    refs:
+    - merge_requests
     changes:
     - cli/**/*
     - lib/**/*
     - Cargo.lock
     - Cargo.toml
-    refs:
-    - merge_requests
 
 test:
   image: guangie88/rust:1.33.0
@@ -20,30 +20,64 @@ test:
   - cargo clippy -v --locked --all
   - cargo test -v --locked --all
   only:
+    refs:
+    - merge_requests
     changes:
     - cli/**/*
     - lib/**/*
     - Cargo.lock
     - Cargo.toml
-    refs:
-    - merge_requests
 
 build-release:
   image: clux/muslrust:stable
-  stage: release
+  stage: build-release
+  before_script:
+  - mkdir -p artifacts/preprocessed
   script:
   - cargo build -v --locked --release --all
+  after_script:
+  - cp target/x86_64-unknown-linux-musl/release/smv artifacts/preprocessed/smv-uncompressed
   artifacts:
     paths:
-    - target/x86_64-unknown-linux-musl/release/smv
+    - artifacts/preprocessed/smv-uncompressed
   only:
     refs:
     - master
 
+upload-release:
+  image: alpine:3.9
+  stage: upload-release
+  dependencies:
+  - build-release
+  before_script:
+  - mkdir -p artifacts/processed
+  # upx installation
+  - wget https://github.com/upx/upx/releases/download/v3.95/upx-3.95-amd64_linux.tar.xz
+  - tar xvf upx-3.95-amd64_linux.tar.xz
+  - mv upx-3.95-amd64_linux/upx /usr/local/bin/
+  - rm -r upx-3.95-amd64_linux upx-3.95-amd64_linux.tar.xz
+  # ghr installation
+  - wget https://github.com/tcnksm/ghr/releases/download/v0.12.0/ghr_v0.12.0_linux_amd64.tar.gz
+  - tar xvf ghr_v0.12.0_linux_amd64.tar.gz
+  - mkdir -p /tmp/bin/
+  - mv ghr_v0.12.0_linux_amd64/ghr /usr/local/bin/
+  - rm -r ghr_v0.12.0_linux_amd64 ghr_v0.12.0_linux_amd64.tar.gz
+  # Copy to another artifact path
+  - cp artifacts/preprocessed/smv-uncompressed artifacts/processed/smv
+  script:
+  - upx --best artifacts/processed/smv
+  - ghr -t ${GITHUB_TOKEN} -u ${GITHUB_USER} -r ${GITHUB_REPONAME} -c ${CI_COMMIT_REF_NAME} -replace ${CI_COMMIT_TAG} artifacts/processed/
+  artifacts:
+    paths:
+    - artifacts/processed/smv
+  only:
+  - tags
+
 stages:
 - build
 - test
-- release
+- build-release
+- upload-release
 
 cache:
   key: all-share
