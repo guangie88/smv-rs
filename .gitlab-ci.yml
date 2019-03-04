@@ -4,13 +4,14 @@ build:
   script:
   - cargo build -v --locked --all
   only:
-    refs:
-    - merge_requests
     changes:
     - cli/**/*
     - lib/**/*
     - Cargo.lock
     - Cargo.toml
+    refs:
+    - master
+    - merge_requests
 
 test:
   image: guangie88/rust:1.33.0
@@ -20,13 +21,14 @@ test:
   - cargo clippy -v --locked --all
   - cargo test -v --locked --all
   only:
-    refs:
-    - merge_requests
     changes:
     - cli/**/*
     - lib/**/*
     - Cargo.lock
     - Cargo.toml
+    refs:
+    - master
+    - merge_requests
 
 build-end:
   image: alpine:3.9
@@ -34,7 +36,9 @@ build-end:
   script:
   - "true"
   only:
-  - merge_requests
+    refs:
+    - master
+    - merge_requests
 
 .build-release:
   image: clux/muslrust:stable
