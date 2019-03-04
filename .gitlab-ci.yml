@@ -33,8 +33,8 @@ build-end:
   stage: build-end
   script:
   - "true"
-  only:
-  - merge_requests
+  # only:
+  # - merge_requests
 
 .build-release:
   image: clux/muslrust:stable
