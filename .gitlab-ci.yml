@@ -68,6 +68,11 @@ upload-release:
   - cp artifacts/preprocessed/smv-uncompressed artifacts/processed/smv
   script:
   - upx --best artifacts/processed/smv
+  - |-
+    if [ -z "${GITHUB_TOKEN}" ]; then
+      echo "Github token is empty, error!"
+      return 1
+    fi
   - ghr -t ${GITHUB_TOKEN} -u ${GITHUB_USER} -r ${GITHUB_REPONAME} -c ${CI_COMMIT_SHA} -replace ${CI_COMMIT_REF_NAME} artifacts/processed/
   artifacts:
     paths:
