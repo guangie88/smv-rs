@@ -40,10 +40,10 @@ build-release:
   artifacts:
     paths:
     - artifacts/preprocessed/smv-uncompressed
-  only:
-    refs:
-    - master
-    - /^v\d+\.\d+\.\d+(-\S*)?$/
+  # only:
+  #   refs:
+  #   - master
+  #   - /^v\d+\.\d+\.\d+(-\S*)?$/
 
 upload-release:
   image: alpine:3.9
@@ -73,6 +73,10 @@ upload-release:
   artifacts:
     paths:
     - artifacts/processed/smv
+  # only:
+  #   refs:
+  #   - /^v\d+\.\d+\.\d+(-\S*)?$/
+
 
 stages:
 - build
