@@ -30,7 +30,7 @@ test:
 
 build-release:
   image: clux/muslrust:stable
-  stage: release
+  stage: build-release
   before_script:
   - mkdir -p artifacts/preprocessed
   script:
@@ -46,7 +46,7 @@ build-release:
 
 upload-release:
   image: alpine:3.9
-  stage: release
+  stage: upload-release
   dependencies:
   - build-release
   before_script:
@@ -76,7 +76,8 @@ upload-release:
 stages:
 - build
 - test
-- release
+- build-release
+- upload-release
 
 cache:
   key: all-share
