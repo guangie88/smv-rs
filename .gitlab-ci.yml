@@ -28,7 +28,7 @@ test:
     - Cargo.lock
     - Cargo.toml
 
-build-release: &build-release
+.build-release:
   image: clux/muslrust:stable
   stage: build-release
   before_script:
@@ -46,16 +46,14 @@ build-release: &build-release
   #   - /^v\d+\.\d+\.\d+(-\S*)?$/
 
 build-release:linux_amd64:
-  <<: *build-release
   variables:
     OS: linux
     ARCH: amd64
+  extends: .build-release
 
-upload-release: &upload-release
+.upload-release:
   image: alpine:3.9
   stage: upload-release
-  dependencies:
-  - build-release
   before_script:
   - mkdir -p artifacts/compressed
   # upx installation
@@ -83,10 +81,12 @@ upload-release: &upload-release
   #   - /^v\d+\.\d+\.\d+(-\S*)?$/
 
 upload-release:linux_amd64:
-  <<: *upload-release
   variables:
     OS: linux
     ARCH: amd64
+  dependencies:
+  - build-release:linux_amd64
+  extends: .upload-release
 
 stages:
 - build
