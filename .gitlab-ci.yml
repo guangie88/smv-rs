@@ -34,6 +34,7 @@ build-release:
   before_script:
   - mkdir -p artifacts/preprocessed
   script:
+  - export
   - cargo build -v --locked --release --all
   after_script:
   - cp target/x86_64-unknown-linux-musl/release/smv artifacts/preprocessed/smv-uncompressed
@@ -66,9 +67,8 @@ upload-release:
   # Copy to another artifact path
   - cp artifacts/preprocessed/smv-uncompressed artifacts/processed/smv
   script:
+  - export
   - upx --best artifacts/processed/smv
-  - echo "CI_COMMIT_SHA ${CI_COMMIT_SHA}"
-  - echo "CI_COMMIT_REF_NAME ${CI_COMMIT_REF_NAME}"
   - ghr -t ${GITHUB_TOKEN} -u ${GITHUB_USER} -r ${GITHUB_REPONAME} -c ${CI_COMMIT_SHA} -replace ${CI_COMMIT_REF_NAME} artifacts/processed/
   artifacts:
     paths:
