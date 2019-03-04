@@ -11,7 +11,7 @@ license = "MIT"
 [dependencies]
 structopt = "0.2.14"
 failure = "0.1.5"
-smv = { path = "../lib" }
+smv = { path = "../lib", version = "0.1.0" }
 
 [badges]
 travis-ci = { repository = "guangie88/smv-rs" }
