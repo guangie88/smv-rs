@@ -28,6 +28,15 @@ test:
     - Cargo.lock
     - Cargo.toml
 
+build-end:
+  image: scratch
+  stage: build-end
+  script:
+  - .
+  only:
+    refs:
+    - merge_requests
+
 .build-release:
   image: clux/muslrust:stable
   stage: build-release
@@ -91,6 +100,7 @@ upload-release:linux_amd64:
 stages:
 - build
 - test
+- build-end
 - build-release
 - upload-release
 
