@@ -73,12 +73,6 @@ upload-release:
   artifacts:
     paths:
     - artifacts/processed/smv
-  only:
-    refs:
-    - merge_requests
-    - master
-    - /^v\d+\.\d+\.\d+(-\S*)?$/
-
 
 stages:
 - build
