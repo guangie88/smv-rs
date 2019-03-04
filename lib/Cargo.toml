@@ -1,8 +1,16 @@
 [package]
-name = "smv-lib"
+name = "smv"
 version = "0.1.0"
 authors = ["Chen Weiguang <chen.weiguang@gmail.com>"]
+description = "SemVer parsing and formatting library"
 edition = "2018"
+readme = "README.md"
+categories = ["value-formatting"]
+license = "MIT"
 
 [dependencies]
 failure = "0.1.5"
+
+[lib]
+name = "smv"
+path = "src/lib.rs"

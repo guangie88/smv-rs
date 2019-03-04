@@ -3,7 +3,7 @@ use std::io::{self, Read};
 use std::str::FromStr;
 use structopt::StructOpt;
 
-use smv_lib::{replace, SemVer};
+use smv::{replace, SemVer};
 
 #[derive(Debug)]
 enum Input {
@@ -26,9 +26,9 @@ impl std::str::FromStr for Input {
 }
 
 #[derive(StructOpt, Debug)]
-#[structopt(name = "subcommand", about = "smv subcommands")]
+#[structopt(name = "subcommand")]
 enum Subcommand {
-    #[structopt(name = "parse")]
+    #[structopt(name = "parse", about = "SemVer parse")]
     Parse {
         #[structopt(
             parse(try_from_str),
@@ -50,7 +50,7 @@ enum Subcommand {
 }
 
 #[derive(StructOpt, Debug)]
-#[structopt(name = "smv main arguments")]
+#[structopt(name = "smv SemVer Manipulator")]
 struct Args {
     #[structopt(subcommand)]
     cmd: Subcommand,
