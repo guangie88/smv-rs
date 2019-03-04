@@ -34,8 +34,7 @@ build-end:
   script:
   - .
   only:
-    refs:
-    - merge_requests
+  - merge_requests
 
 .build-release:
   image: clux/muslrust:stable
