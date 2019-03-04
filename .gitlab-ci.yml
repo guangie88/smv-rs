@@ -34,7 +34,6 @@ build-release:
   before_script:
   - mkdir -p artifacts/preprocessed
   script:
-  - export
   - cargo build -v --locked --release --all
   after_script:
   - cp target/x86_64-unknown-linux-musl/release/smv artifacts/preprocessed/smv-uncompressed
@@ -64,10 +63,10 @@ upload-release:
   - mkdir -p /tmp/bin/
   - mv ghr_v0.12.0_linux_amd64/ghr /usr/local/bin/
   - rm -r ghr_v0.12.0_linux_amd64 ghr_v0.12.0_linux_amd64.tar.gz
+  - apk add --no-cache ca-certificates
   # Copy to another artifact path
   - cp artifacts/preprocessed/smv-uncompressed artifacts/processed/smv
   script:
-  - export
   - upx --best artifacts/processed/smv
   - ghr -t ${GITHUB_TOKEN} -u ${GITHUB_USER} -r ${GITHUB_REPONAME} -c ${CI_COMMIT_SHA} -replace ${CI_COMMIT_REF_NAME} artifacts/processed/
   artifacts:
