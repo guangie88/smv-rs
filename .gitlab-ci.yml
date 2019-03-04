@@ -28,7 +28,7 @@ test:
     - Cargo.lock
     - Cargo.toml
 
-build-release: &build-release:
+build-release: &build-release
   image: clux/muslrust:stable
   stage: build-release
   before_script:
@@ -51,7 +51,7 @@ build-release:linux_amd64:
     OS: linux
     ARCH: amd64
 
-upload-release: &upload-release:
+upload-release: &upload-release
   image: alpine:3.9
   stage: upload-release
   dependencies:
@@ -59,16 +59,16 @@ upload-release: &upload-release:
   before_script:
   - mkdir -p artifacts/compressed
   # upx installation
-  - wget https://github.com/upx/upx/releases/download/v3.95/upx-3.95-amd64_linux.tar.xz
-  - tar xvf upx-3.95-amd64_linux.tar.xz
-  - mv upx-3.95-amd64_linux/upx /usr/local/bin/
-  - rm -r upx-3.95-amd64_linux upx-3.95-amd64_linux.tar.xz
+  - wget https://github.com/upx/upx/releases/download/v3.95/upx-3.95-${ARCH}_${OS}.tar.xz
+  - tar xvf upx-3.95-${ARCH}_${OS}.tar.xz
+  - mv upx-3.95-${ARCH}_${OS}/upx /usr/local/bin/
+  - rm -r upx-3.95-${ARCH}_${OS} upx-3.95-${ARCH}_${OS}.tar.xz
   # ghr installation
-  - wget https://github.com/tcnksm/ghr/releases/download/v0.12.0/ghr_v0.12.0_linux_amd64.tar.gz
-  - tar xvf ghr_v0.12.0_linux_amd64.tar.gz
+  - wget https://github.com/tcnksm/ghr/releases/download/v0.12.0/ghr_v0.12.0_${OS}_${ARCH}.tar.gz
+  - tar xvf ghr_v0.12.0_${OS}_${ARCH}.tar.gz
   - mkdir -p /tmp/bin/
-  - mv ghr_v0.12.0_linux_amd64/ghr /usr/local/bin/
-  - rm -r ghr_v0.12.0_linux_amd64 ghr_v0.12.0_linux_amd64.tar.gz
+  - mv ghr_v0.12.0_${OS}_${ARCH}/ghr /usr/local/bin/
+  - rm -r ghr_v0.12.0_${OS}_${ARCH} ghr_v0.12.0_${OS}_${ARCH}.tar.gz
   - apk add --no-cache ca-certificates
   # Copy to another artifact path
   - cp artifacts/original/smv_${OS}_${ARCH} artifacts/compressed/smv_${OS}_${ARCH}
