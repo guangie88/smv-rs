@@ -67,7 +67,7 @@ upload-release:
   - cp artifacts/preprocessed/smv-uncompressed artifacts/processed/smv
   script:
   - upx --best artifacts/processed/smv
-  - ghr -t ${GITHUB_TOKEN} -u ${GITHUB_USER} -r ${GITHUB_REPONAME} -c ${CI_COMMIT_REF_NAME} -replace ${CI_COMMIT_TAG} artifacts/processed/
+  - ghr -t ${GITHUB_TOKEN} -u ${GITHUB_USER} -r ${GITHUB_REPONAME} -c ${CI_COMMIT_SHA} -replace ${CI_COMMIT_REF_NAME} artifacts/processed/
   artifacts:
     paths:
     - artifacts/processed/smv
