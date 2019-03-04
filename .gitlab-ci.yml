@@ -29,12 +29,12 @@ test:
     - Cargo.toml
 
 build-end:
-  image: scratch
+  image: alpine:3.9
   stage: build-end
   script:
   - "true"
-  # only:
-  # - merge_requests
+  only:
+  - merge_requests
 
 .build-release:
   image: clux/muslrust:stable
