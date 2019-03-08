@@ -37,8 +37,8 @@ build-end:
   - "true"
   only:
     refs:
-    - master
     - merge_requests
+    - master
 
 .build-release:
   image: clux/muslrust:stable
