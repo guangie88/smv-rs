@@ -35,7 +35,7 @@ build-end:
   - "true"
   only:
     refs:
-    - merge_requests
+    - change_name
 
 .build-release:
   image: clux/muslrust:stable
