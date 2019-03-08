@@ -10,7 +10,6 @@ build:
     - Cargo.lock
     - Cargo.toml
     refs:
-    - master
     - merge_requests
 
 test:
@@ -27,7 +26,6 @@ test:
     - Cargo.lock
     - Cargo.toml
     refs:
-    - master
     - merge_requests
 
 build-end:
