@@ -12,6 +12,8 @@ RUN cargo build --release -v --locked --all
 
 FROM guangie88/releaser:alpine_upx-3_ghr-0.12 AS misc
 WORKDIR /build
+ARG ARCH=amd64
+ARG OS=linux
 COPY --from=build /build/target/x86_64-unknown-linux-musl/release/smv ./smv_${ARCH}_${OS}
 RUN upx --best ./smv_${ARCH}_${OS}
 
