@@ -8,7 +8,7 @@ steps:
     type: build
     stage: build-common
     title: Build common target Docker image
-    image-name: ${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}
+    image_name: ${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}
     target: common
   
   parallel_build_run_test:
@@ -18,10 +18,9 @@ steps:
       build_test:
         type: build
         title: Build test image and run tests
-        image-name: ${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}
+        image_name: ${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}
         target: test
       run_test:
-        type: freestyle
         title: Run tests
         image: ${{build_test}}
         # working_directory: ${{main_clone}}
@@ -38,12 +37,12 @@ steps:
       build:
         type: build
         title: Build image in debug mode
-        image-name: ${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}
+        image_name: ${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}
         target: build
 
       build_release:
         type: build
         title: Build release image containing binary
-        image-name: ${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}
+        image_name: ${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}
         tag: ${{CF_BRANCH}}
         target: release
