@@ -21,5 +21,5 @@ FROM base as build
 RUN cargo build -v --locked --all
 
 FROM base as test
-RUN rustup component add rustfmt
+RUN rustup component add clippy rustfmt
 RUN cargo test --no-run -v --locked --all
