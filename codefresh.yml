@@ -18,23 +18,10 @@ steps:
     steps:
       build_test:
         type: build
-        title: Build test image and run tests
+        title: Build test image
         image_name: ${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}
         tag: test
         target: test
-      run_test:
-        title: Run tests
-        image: ${{build_test}}
-        # working_directory: ${{main_clone}}
-        commands:
-        - rustfmt --check cli/**/*.rs lib/**/*.rs
-        - cargo clippy -v --locked --all
-        - cargo test -v --locked --all
-        when:
-          steps: 
-          - name: build_test
-            on:
-            - success
 
       build:
         type: build
@@ -49,3 +36,12 @@ steps:
         image_name: ${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}
         tag: ${{CF_BRANCH}}
         target: release
+
+  run_test:
+    title: Run tests
+    image: ${{build_test}}
+    # working_directory: ${{main_clone}}
+    commands:
+    - rustfmt --check cli/**/*.rs lib/**/*.rs
+    - cargo clippy -v --locked --all
+    - cargo test -v --locked --all
