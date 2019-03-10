@@ -2,7 +2,10 @@ version: '1.0'
 mode: parallel
 stages:
 - build-base
-- test-release
+- build-test
+- test
+- build
+- release
 
 steps:
   build_base_image:
@@ -18,44 +21,55 @@ steps:
         on:
         - success
 
-  test_release:
-    type: parallel
-    stage: test-release
+  build_test:
+    type: build
+    stage: build-test
+    title: Build test image
+    image_name: ${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}
+    tag: test
+    target: test
     when:
       steps:
       - name: build_base_image
         on:
         - success
-    steps:
-      build_test:
-        type: build
-        title: Build test image
-        image_name: ${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}
-        tag: test
-        target: test
-      run_test:
-        title: Run tests
-        image: ${{build_test}}
-        commands:
-        - cargo fmt -v --all -- --check
-        - cargo clippy -v --locked --all
-        - cargo test -v --locked --all
-        when:
-          steps:
-          - name: build_test
-            on:
-            - success
 
-      build:
-        type: build
-        title: Build image in debug mode
-        image_name: ${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}
-        tag: build
-        target: build
+  test:
+    title: Run tests
+    stage: test
+    image: ${{build_test}}
+    commands:
+    - cargo fmt -v --all -- --check
+    - cargo clippy -v --locked --all
+    - cargo test -v --locked --all
+    when:
+      steps:
+      - name: build_test
+        on:
+        - success
 
-      build_release:
-        type: build
-        title: Build release image containing binary
-        image_name: ${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}
-        tag: ${{CF_BRANCH}}
-        target: release
+  build:
+    type: build
+    stage: build
+    title: Build image in debug mode
+    image_name: ${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}
+    tag: build
+    target: build
+    when:
+      steps:
+      - name: build_base_image
+        on:
+        - success
+
+  build_release:
+    type: build
+    stage: release
+    title: Build release image containing binary
+    image_name: ${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}
+    tag: ${{CF_BRANCH}}
+    target: release
+    when:
+      steps:
+      - name: build_base_image
+        on:
+        - success
