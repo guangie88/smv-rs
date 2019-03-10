@@ -35,5 +35,5 @@ FROM scratch AS release
 WORKDIR /app
 ARG ARCH=amd64
 ARG OS=linux
-COPY --from=compressor /build/smv_${ARCH}_${OS} ./smv
+COPY --from=misc /build/smv_${ARCH}_${OS} ./smv
 CMD ./smv
