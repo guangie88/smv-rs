@@ -1,18 +1,19 @@
 version: '1.0'
-stage:
-- common
-- build_test_release
+stages:
+- build-common
+- build-test-release
+
 steps:
   build_common_image:
     type: build
-    stage: common
+    stage: build-common
     title: Build common target Docker image
     image-name: ${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}
     target: common
   
   parallel_build_run_test:
     type: parallel
-    stage: build_test_release
+    stage: build-test-release
     steps:
       build_test:
         type: build
@@ -44,4 +45,5 @@ steps:
         type: build
         title: Build release image containing binary
         image-name: ${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}
-        target: ${{CF_BRANCH}}
+        tag: ${{CF_BRANCH}}
+        target: release
