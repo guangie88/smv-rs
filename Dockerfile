@@ -1,4 +1,4 @@
-FROM clux/muslrust:stable AS base
+FROM clux/muslrust:stable AS build
 
 WORKDIR /build
 COPY Cargo.lock Cargo.toml ./
@@ -8,8 +8,6 @@ RUN cargo fetch -v --locked
 
 COPY cli/src ./cli/src
 COPY lib/src ./lib/src
-
-FROM base AS build
 RUN cargo build --release -v --locked --all
 
 FROM alpine:3.9 AS misc
@@ -37,10 +35,5 @@ FROM scratch AS release
 WORKDIR /app
 ARG ARCH=amd64
 ARG OS=linux
-COPY --from=compressor /app/smv_${ARCH}_${OS} ./smv
+COPY --from=compressor /build/smv_${ARCH}_${OS} ./smv
 CMD ./smv
-
-FROM base AS test
-RUN rustup component add clippy rustfmt
-RUN cargo build -v --locked --all
-RUN cargo test --no-run -v --locked --all
