@@ -1,24 +1,26 @@
 version: '1.0'
 stages:
-- build-common
-- build-test-release
+- build-base
+- test-release
 
 steps:
-  build_common_image:
+  build_base_image:
     type: build
-    stage: build-common
-    title: Build common target Docker image
+    stage: build-base
+    title: Build base target Docker image
     image_name: ${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}
-    target: common
+    tag: base
+    target: base
   
   parallel_build_run_test:
     type: parallel
-    stage: build-test-release
+    stage: test-release
     steps:
       build_test:
         type: build
         title: Build test image and run tests
         image_name: ${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}
+        tag: test
         target: test
       run_test:
         title: Run tests
@@ -38,6 +40,7 @@ steps:
         type: build
         title: Build image in debug mode
         image_name: ${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}
+        tag: build
         target: build
 
       build_release:
