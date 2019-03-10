@@ -36,9 +36,8 @@ steps:
     title: Run tests
     stage: test
     image: ${{build_test}}
-    # working_directory: ${{main_clone}}
     commands:
-    - rustfmt --check cli/**/*.rs lib/**/*.rs
+    - cargo fmt -v --all -- --check
     - cargo clippy -v --locked --all
     - cargo test -v --locked --all
 
