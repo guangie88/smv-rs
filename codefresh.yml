@@ -1,7 +1,9 @@
 version: '1.0'
 stages:
 - build-base
-- test-release
+- build-test
+- test
+- release
 
 steps:
   build_base_image:
@@ -12,9 +14,9 @@ steps:
     tag: base
     target: base
   
-  parallel_build_run_test:
+  build_test:
     type: parallel
-    stage: test-release
+    stage: build-test
     steps:
       build_test:
         type: build
@@ -30,18 +32,20 @@ steps:
         tag: build
         target: build
 
-      build_release:
-        type: build
-        title: Build release image containing binary
-        image_name: ${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}
-        tag: ${{CF_BRANCH}}
-        target: release
-
   run_test:
     title: Run tests
+    stage: test
     image: ${{build_test}}
     # working_directory: ${{main_clone}}
     commands:
     - rustfmt --check cli/**/*.rs lib/**/*.rs
     - cargo clippy -v --locked --all
     - cargo test -v --locked --all
+
+  build_release:
+    type: build
+    stage: release
+    title: Build release image containing binary
+    image_name: ${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}
+    tag: ${{CF_BRANCH}}
+    target: release
