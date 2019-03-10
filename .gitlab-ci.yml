@@ -4,13 +4,13 @@ build:
   script:
   - cargo build -v --locked --all
   only:
-    refs:
-    - merge_requests
     changes:
     - cli/**/*
     - lib/**/*
     - Cargo.lock
     - Cargo.toml
+    refs:
+    - merge_requests
 
 test:
   image: guangie88/rust:1.33.0
@@ -20,66 +20,87 @@ test:
   - cargo clippy -v --locked --all
   - cargo test -v --locked --all
   only:
-    refs:
-    - merge_requests
     changes:
     - cli/**/*
     - lib/**/*
     - Cargo.lock
     - Cargo.toml
+    refs:
+    - merge_requests
 
-build-release:
+build-end:
+  image: alpine:3.9
+  stage: build-end
+  script:
+  - "true"
+  only:
+    refs:
+    - merge_requests
+
+.build-release:
   image: clux/muslrust:stable
   stage: build-release
   before_script:
-  - mkdir -p artifacts/preprocessed
+  - mkdir -p artifacts/original
   script:
   - cargo build -v --locked --release --all
   after_script:
-  - cp target/x86_64-unknown-linux-musl/release/smv artifacts/preprocessed/smv-uncompressed
+  - cp target/x86_64-unknown-linux-musl/release/smv artifacts/original/smv_${OS}_${ARCH}
   artifacts:
     paths:
-    - artifacts/preprocessed/smv-uncompressed
+    - artifacts/original/smv_${OS}_${ARCH}
   only:
     refs:
     - master
     - /^v\d+\.\d+\.\d+(-\S*)?$/
 
-upload-release:
+build-release:linux_amd64:
+  variables:
+    OS: linux
+    ARCH: amd64
+  extends: .build-release
+
+.upload-release:
   image: alpine:3.9
   stage: upload-release
-  dependencies:
-  - build-release
   before_script:
-  - mkdir -p artifacts/processed
+  - mkdir -p artifacts/compressed
   # upx installation
-  - wget https://github.com/upx/upx/releases/download/v3.95/upx-3.95-amd64_linux.tar.xz
-  - tar xvf upx-3.95-amd64_linux.tar.xz
-  - mv upx-3.95-amd64_linux/upx /usr/local/bin/
-  - rm -r upx-3.95-amd64_linux upx-3.95-amd64_linux.tar.xz
+  - wget https://github.com/upx/upx/releases/download/v3.95/upx-3.95-${ARCH}_${OS}.tar.xz
+  - tar xvf upx-3.95-${ARCH}_${OS}.tar.xz
+  - mv upx-3.95-${ARCH}_${OS}/upx /usr/local/bin/
+  - rm -r upx-3.95-${ARCH}_${OS} upx-3.95-${ARCH}_${OS}.tar.xz
   # ghr installation
-  - wget https://github.com/tcnksm/ghr/releases/download/v0.12.0/ghr_v0.12.0_linux_amd64.tar.gz
-  - tar xvf ghr_v0.12.0_linux_amd64.tar.gz
+  - wget https://github.com/tcnksm/ghr/releases/download/v0.12.0/ghr_v0.12.0_${OS}_${ARCH}.tar.gz
+  - tar xvf ghr_v0.12.0_${OS}_${ARCH}.tar.gz
   - mkdir -p /tmp/bin/
-  - mv ghr_v0.12.0_linux_amd64/ghr /usr/local/bin/
-  - rm -r ghr_v0.12.0_linux_amd64 ghr_v0.12.0_linux_amd64.tar.gz
+  - mv ghr_v0.12.0_${OS}_${ARCH}/ghr /usr/local/bin/
+  - rm -r ghr_v0.12.0_${OS}_${ARCH} ghr_v0.12.0_${OS}_${ARCH}.tar.gz
   - apk add --no-cache ca-certificates
   # Copy to another artifact path
-  - cp artifacts/preprocessed/smv-uncompressed artifacts/processed/smv
+  - cp artifacts/original/smv_${OS}_${ARCH} artifacts/compressed/smv_${OS}_${ARCH}
   script:
-  - upx --best artifacts/processed/smv
-  - ghr -t ${GITHUB_TOKEN} -u ${GITHUB_USER} -r ${GITHUB_REPONAME} -c ${CI_COMMIT_SHA} -replace ${CI_COMMIT_REF_NAME} artifacts/processed/
+  - upx --best artifacts/compressed/smv_${OS}_${ARCH}
+  - ghr -t ${GITHUB_TOKEN} -u ${GITHUB_USER} -r ${GITHUB_REPONAME} -c ${CI_COMMIT_SHA} -replace ${CI_COMMIT_REF_NAME} artifacts/compressed/smv_${OS}_${ARCH}
   artifacts:
     paths:
-    - artifacts/processed/smv
+    - artifacts/compressed/smv_${OS}_${ARCH}
   only:
     refs:
     - /^v\d+\.\d+\.\d+(-\S*)?$/
 
+upload-release:linux_amd64:
+  variables:
+    OS: linux
+    ARCH: amd64
+  dependencies:
+  - build-release:linux_amd64
+  extends: .upload-release
 
 stages:
 - build
 - test
+- build-end
 - build-release
 - upload-release
 
