@@ -76,7 +76,7 @@ steps:
       condition:
         all:
           is_master_branch: '"${{CF_BRANCH}}" == "master"'
-          is_release_tag: 'match("${{CF_RELEASE_TAG}}", "/^v\\d+\\.\\d+\\.\\d+$/", true)'
+          is_release_tag: 'match("${{CF_RELEASE_TAG}}", "^v\\d+\\.\\d+\\.\\d+$", false)'
       steps:
       - name: compress_release
         on:
