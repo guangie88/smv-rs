@@ -8,6 +8,7 @@ stages:
 steps:
   build_test:
     type: build
+    stage: test
     title: Build test image
     dockerfile: Dockerfile-test
     image_name: ${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}
@@ -54,7 +55,8 @@ steps:
     commands:
     - mkdir -p target/x86_64-unknown-linux-musl/release-compressed
     - cd target/x86_64-unknown-linux-musl
-    - upx --best release/smv release-compressed/smv_linux_amd64
+    - cp release/smv release-compressed/smv_linux_amd64
+    - upx --best release-compressed/smv_linux_amd64
     when:
       steps:
       - name: build_release
