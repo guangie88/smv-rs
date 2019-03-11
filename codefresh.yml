@@ -70,7 +70,7 @@ steps:
     working_directory: ${{main_clone}}/target/x86_64-unknown-linux-musl/release-compressed
     commands:
     - |-
-      ghr -u ${{CF_REPO_OWNER}} -r ${{CF_REPO_NAME}} \
+      ghr -t ${{GITHUB_TOKEN}} -u ${{CF_REPO_OWNER}} -r ${{CF_REPO_NAME}} \
           -c ${{CF_REVISION}} -replace ${{CF_BRANCH}} smv_linux_amd64
     when:
       # condition:
