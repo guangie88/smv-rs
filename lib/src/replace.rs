@@ -1,6 +1,5 @@
+use crate::Version;
 use failure::{err_msg, Error};
-
-use crate::semver;
 
 pub const ESCAPE: char = '\\';
 
@@ -17,11 +16,11 @@ fn is_delimiter(c: char) -> bool {
     c.is_ascii_whitespace() || c.is_ascii_punctuation()
 }
 
-fn push_x(semval: &semver::SemVer, output: &mut String) {
+fn push_x(semval: &Version, output: &mut String) {
     output.push_str(&format!("{}", semval.major));
 }
 
-fn handle_x(c: char, semval: &semver::SemVer, output: &mut String) -> State {
+fn handle_x(c: char, semval: &Version, output: &mut String) -> State {
     use self::State::*;
 
     match c {
@@ -42,19 +41,13 @@ fn handle_x(c: char, semval: &semver::SemVer, output: &mut String) -> State {
     }
 }
 
-fn push_y(semval: &semver::SemVer, output: &mut String) -> Result<(), Error> {
-    output.push_str(&format!(
-        "{}",
-        semval
-            .minor
-            .ok_or_else(|| err_msg("No minor version, cannot replace y"))?
-    ));
-    Ok(())
+fn push_y(semval: &Version, output: &mut String) {
+    output.push_str(&format!("{}", semval.minor));
 }
 
 fn handle_y(
     c: char,
-    semval: &semver::SemVer,
+    semval: &Version,
     output: &mut String,
 ) -> Result<State, Error> {
     use self::State::*;
@@ -65,7 +58,7 @@ fn handle_y(
             Escaped
         }
         c if is_delimiter(c) => {
-            push_y(semval, output)?;
+            push_y(semval, output);
             output.push(c);
             Delimited
         }
@@ -77,19 +70,13 @@ fn handle_y(
     })
 }
 
-fn push_z(semval: &semver::SemVer, output: &mut String) -> Result<(), Error> {
-    output.push_str(&format!(
-        "{}",
-        semval
-            .patch
-            .ok_or_else(|| err_msg("No patch version, cannot replace z"))?
-    ));
-    Ok(())
+fn push_z(semval: &Version, output: &mut String) {
+    output.push_str(&format!("{}", semval.patch));
 }
 
 fn handle_z(
     c: char,
-    semval: &semver::SemVer,
+    semval: &Version,
     output: &mut String,
 ) -> Result<State, Error> {
     use self::State::*;
@@ -100,7 +87,7 @@ fn handle_z(
             Escaped
         }
         c if is_delimiter(c) => {
-            push_z(semval, output)?;
+            push_z(semval, output);
             output.push(c);
             Delimited
         }
@@ -112,7 +99,7 @@ fn handle_z(
     })
 }
 
-pub fn replace(fmt: &str, semval: &semver::SemVer) -> Result<String, Error> {
+pub fn replace(fmt: &str, semval: &Version) -> Result<String, Error> {
     use self::State::*;
 
     // starts with Delimited
@@ -158,12 +145,8 @@ pub fn replace(fmt: &str, semval: &semver::SemVer) -> Result<String, Error> {
     match state {
         Escaped => Err(err_msg("Invalid escape char found at last index"))?,
         X => push_x(semval, &mut output),
-        Y => {
-            push_y(semval, &mut output)?;
-        }
-        Z => {
-            push_z(semval, &mut output)?;
-        }
+        Y => push_y(semval, &mut output),
+        Z => push_z(semval, &mut output),
         _ => {}
     }
 
@@ -174,12 +157,12 @@ pub fn replace(fmt: &str, semval: &semver::SemVer) -> Result<String, Error> {
 mod tests {
     use super::*;
 
-    use crate::semver::SemVer;
+    use crate::Version;
 
     #[test]
     fn replace_xyz() {
         assert_eq!(
-            replace("x.y.z", &SemVer::from_major_minor_patch(3, 1, 4)).unwrap(),
+            replace("x.y.z", &Version::parse("3.1.4").unwrap()).unwrap(),
             "3.1.4"
         );
     }
@@ -187,7 +170,7 @@ mod tests {
     #[test]
     fn replace_xy() {
         assert_eq!(
-            replace("x.y", &SemVer::from_major_minor_patch(3, 1, 4)).unwrap(),
+            replace("x.y", &Version::parse("3.1.4").unwrap()).unwrap(),
             "3.1"
         );
     }
@@ -195,7 +178,7 @@ mod tests {
     #[test]
     fn replace_x() {
         assert_eq!(
-            replace("x", &SemVer::from_major_minor_patch(3, 1, 4)).unwrap(),
+            replace("x", &Version::parse("3.1.4").unwrap()).unwrap(),
             "3"
         );
     }
@@ -203,8 +186,7 @@ mod tests {
     #[test]
     fn replace_large_xyz() {
         assert_eq!(
-            replace("x.y.z", &SemVer::from_major_minor_patch(100, 213, 579))
-                .unwrap(),
+            replace("x.y.z", &Version::parse("100.213.579").unwrap()).unwrap(),
             "100.213.579"
         );
     }
@@ -212,7 +194,7 @@ mod tests {
     #[test]
     fn replace_xyz_with_text() {
         assert_eq!(
-            replace("xx:x,yy:y zz:z", &SemVer::from_major_minor_patch(3, 1, 4))
+            replace("xx:x,yy:y zz:z", &Version::parse("3.1.4").unwrap())
                 .unwrap(),
             "xx:3,yy:1 zz:4"
         );
@@ -223,7 +205,7 @@ mod tests {
         assert_eq!(
             replace(
                 "xabcx x-x defyy y,y zzghi z:z helloworld",
-                &SemVer::from_major_minor_patch(3, 1, 4)
+                &Version::parse("3.1.4").unwrap()
             )
             .unwrap(),
             "xabcx 3-3 defyy 1,1 zzghi 4:4 helloworld"
@@ -235,7 +217,7 @@ mod tests {
         assert_eq!(
             replace(
                 "\\x:x,\\y:y x\\\\ \\\\z \\z:z",
-                &SemVer::from_major_minor_patch(3, 1, 4)
+                &Version::parse("3.1.4").unwrap()
             )
             .unwrap(),
             "x:3,y:1 x\\ \\z z:4"
